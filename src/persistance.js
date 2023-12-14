@@ -1,28 +1,27 @@
 const mysql = require('mysql');
 const util = require('util');
 
-const INSERT_INTO_TEMPLATE = 'INSERT INTO $ SET ?';
+const INSERT_INTO_TEMPLATE = 'INSERT INTO ?? SET ?';
 const DELETE_FROM_TEMPLATE = 'DELETE FROM ?? WHERE id = ?';
 const SELECT_ONE_TEMPLATE = 'SELECT * from ?? WHERE id = ?';
+const UPDATE_ONE_TEMPLATE = 'UPDATE ?? SET ? WHERE id = ?'
 
 const dbPool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'Winchester86',
+    password: '<PASSWORD>',
     database: 'financial-analyzer'
 });
 
 const queryPool = util.promisify(dbPool.query).bind(dbPool);
 
 async function findEntitiesByNamedQuery(query, args) {
-    let results;
     try {
         if (args) {
-            results = await queryPool(query, args);
+            return await queryPool(query, args);
         } else {
-            results = await queryPool(query);
+            return await queryPool(query);
         }
-        return results;
     } catch (error) {
         console.log(error);
     }
@@ -50,7 +49,7 @@ async function findEntity(clazz, id) {
 }
 
 async function persistNewEntity(clazz, entity) {
-    const query = INSERT_INTO_TEMPLATE.replace('$', clazz);
+    const query = mysql.format(INSERT_INTO_TEMPLATE, clazz);
 
     try {
         return await queryPool(query, entity);
@@ -70,10 +69,21 @@ async function deleteEntity(clazz, entityId) {
     }
 }
 
+async function updateEntity(clazz, entity) {
+    const query = mysql.format(UPDATE_ONE_TEMPLATE, clazz);
+    
+    try {
+        return await queryPool(query, [entity, entity.id]);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 module.exports = { 
     findEntitiesByNamedQuery, 
     findEntityByNamedQuery, 
     persistNewEntity,
     deleteEntity,
-    findEntity
+    findEntity,
+    updateEntity
 };
