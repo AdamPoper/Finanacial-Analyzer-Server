@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const Persistance = require('./persistance.js')
 const WatchList = require('./entities/WatchList.js');
@@ -8,6 +9,12 @@ const app = express();
 const PORT = 5555;
 
 app.listen(PORT, () => console.log(`Server is listening on port: ${PORT}`));
+
+const corsOptions = {
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+};
+
+app.use(cors(corsOptions));
 
 // get all the watch lists
 app.get('/watchList/all', async (req, res) => {
@@ -59,7 +66,7 @@ app.get('/watchList/entry/all/:watchListId', async (req, res) => {
     }
 
     const results = await Persistance.findEntitiesByNamedQuery(WatchListEntry.QUERY_FIND_ALL_BY_WATCH_LIST_ID, watchListId);
-    res.status(200).send({ watchListSymbols: results });
+    res.status(200).json(results);
 });
 
 // add a new entry to a watch list
@@ -121,6 +128,6 @@ app.delete('/watchList/delete/:watchListId', async (req, res) => {
     }
 
     Persistance.deleteEntity(WatchList.name, watchListId)
-        .then(() => res.status(200).send('Successfully deleted watch list ' + watchList.name))
-        .catch(() => res.status(500).send('Failure deleting watch list ' + watchList.name));
+        .then(() => res.status(200).json({ message: 'Successfully deleted watch list ' + watchList.name}))
+        .catch(() => res.status(500).json({ message: 'Failure deleting watch list ' + watchList.name }));
 });
