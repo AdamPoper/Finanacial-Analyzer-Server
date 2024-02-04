@@ -30,13 +30,12 @@ app.post('/watchList/new/:name', async (req, res) => {
     const existingWatchList = await Persistance.findEntityByNamedQuery(WatchList.QUERY_FIND_BY_NAME, name);
     if (existingWatchList !== null) {
         const msg = 'Watch lists cannot have duplicate names: ' + name;
-        console.error(msg);
-        res.status(400).send(msg);
+        res.status(400).json({ message: msg });
     }
 
     Persistance.persistNewEntity(WatchList.name, watchList)
-        .then(() => res.status(200).send('Created new Watch list ' + name))
-        .catch(() => res.status(500).send('Failure creating new watch list: ' + name));
+        .then(() => res.status(200).json({ message: 'Created new Watch list ' + name }))
+        .catch(() => res.status(500).json({ message: 'Failure creating new watch list: ' + name }));
 });
 
 app.put('/watchList/rename/:watchListId/:newName', async (req, res) => {
@@ -77,22 +76,20 @@ app.post('/watchList/entry/new/:watchListID/:symbol', async (req, res) => {
     const watchList = await Persistance.findEntity(WatchList.name, watchListId);
     if (watchList === null) {
         const msg = 'Unable to find watch list with id ' + watchListId;
-        console.error(msg);
-        res.status(404).send(msg);
+        res.status(404).json({ message: msg });
     }
 
     const existingEntry = await Persistance
         .findEntityByNamedQuery(WatchListEntry.QUERY_FIND_BY_WATCH_LIST_ID_AND_SYMBOL, [watchListId, symbol]);
     if (existingEntry !== null) {
         const msg = 'Watch list cannot have duplicate symbols';
-        console.log(msg);
-        res.status(400).send(msg);
+        res.status(400).json({ message: msg });
     }
 
     const entry = new WatchListEntry(symbol, watchListId);
     Persistance.persistNewEntity(WatchListEntry.name, entry)
-        .then(() => res.status(200).send('Created new watch list entry ' + symbol + ' for ' + watchList.name))
-        .catch(() => res.status(500).send('Failure adding ' + symbol + ' to ' + watchList.name));
+        .then(() => res.status(200).json({ message: 'Created new watch list entry ' + symbol + ' for ' + watchList.name }))
+        .catch(() => res.status(500).json({ message: 'Failure adding ' + symbol + ' to ' + watchList.name }));
 });
 
 // remove an entry from a watch list
@@ -102,12 +99,12 @@ app.delete('/watchList/entry/delete/:entryID', async (req, res) => {
     if (watchListEntry === null) {
         const msg = 'Unable to find watch list entry with id ' + watchListEntryId;
         console.error(msg);
-        res.status(404).send(msg);
+        res.status(404).json({ message: msg });
     }
 
     Persistance.deleteEntity(WatchListEntry.name, watchListEntryId)
-        .then(() => res.status(200).send('Successfully deleted watch list entry ' + watchListEntryId))
-        .catch(() => res.status(500).send('Failure to delete watch list entry ' + watchListEntryId));
+        .then(() => res.status(200).json({ message: 'Successfully deleted watch list entry ' + watchListEntryId }))
+        .catch(() => res.status(500).json({ message: 'Failure to delete watch list entry ' + watchListEntryId }));
 });
 
 // delete a watch list entirely

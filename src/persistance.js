@@ -9,7 +9,7 @@ const UPDATE_ONE_TEMPLATE = 'UPDATE ?? SET ? WHERE id = ?'
 const dbPool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '<PASSWORD>',
+    password: 'Winchester86',
     database: 'financial-analyzer'
 });
 
