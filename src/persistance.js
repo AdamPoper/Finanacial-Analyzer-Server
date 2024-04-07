@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const util = require('util');
+require('dotenv').config();
 
 const INSERT_INTO_TEMPLATE = 'INSERT INTO ?? SET ?';
 const DELETE_FROM_TEMPLATE = 'DELETE FROM ?? WHERE id = ?';
@@ -7,10 +8,11 @@ const SELECT_ONE_TEMPLATE = 'SELECT * from ?? WHERE id = ?';
 const UPDATE_ONE_TEMPLATE = 'UPDATE ?? SET ? WHERE id = ?'
 
 const dbPool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'Winchester86',
-    database: 'financial-analyzer'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    port: process.env.DB_PORT,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
 });
 
 const queryPool = util.promisify(dbPool.query).bind(dbPool);
